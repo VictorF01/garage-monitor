@@ -20,9 +20,13 @@ const fmtDate = (s) => new Date(s + "T00:00:00").toLocaleDateString("pt-BR");
 function remainingText(item) {
   const parts = [];
   if (item.km_remaining != null)
-    parts.push(item.km_remaining >= 0 ? `${fmtKm(item.km_remaining)} km restantes` : `${fmtKm(-item.km_remaining)} km além`);
+    parts.push(
+      item.km_remaining >= 0 ? `${fmtKm(item.km_remaining)} km restantes` : `${fmtKm(-item.km_remaining)} km além`,
+    );
   if (item.days_remaining != null)
-    parts.push(item.days_remaining >= 0 ? `${item.days_remaining} dias restantes` : `${-item.days_remaining} dias atrasado`);
+    parts.push(
+      item.days_remaining >= 0 ? `${item.days_remaining} dias restantes` : `${-item.days_remaining} dias atrasado`,
+    );
   return parts.join(" · ");
 }
 
@@ -39,13 +43,15 @@ export default function ItemCard({ item, vehicle, onChange, onError }) {
     .filter(Boolean)
     .join(" ou ");
 
-  const safe = (fn) => async (...a) => {
-    try {
-      await fn(...a);
-    } catch (e) {
-      onError(e.message);
-    }
-  };
+  const safe =
+    (fn) =>
+    async (...a) => {
+      try {
+        await fn(...a);
+      } catch (e) {
+        onError(e.message);
+      }
+    };
 
   const openRecord = () => {
     setForm({ performed_at: today(), km_at_service: vehicle.current_km, cost: "", notes: "" });
@@ -126,19 +132,41 @@ export default function ItemCard({ item, vehicle, onChange, onError }) {
         <form className="form compact" onSubmit={saveRecord}>
           <label>
             Data
-            <input type="date" required value={form.performed_at} max={today()} onChange={(e) => setForm({ ...form, performed_at: e.target.value })} />
+            <input
+              type="date"
+              required
+              value={form.performed_at}
+              max={today()}
+              onChange={(e) => setForm({ ...form, performed_at: e.target.value })}
+            />
           </label>
           <label>
             Km
-            <input type="number" required min="0" value={form.km_at_service} onChange={(e) => setForm({ ...form, km_at_service: e.target.value })} />
+            <input
+              type="number"
+              required
+              min="0"
+              value={form.km_at_service}
+              onChange={(e) => setForm({ ...form, km_at_service: e.target.value })}
+            />
           </label>
           <label>
             Custo (R$)
-            <input type="number" min="0" step="0.01" value={form.cost} onChange={(e) => setForm({ ...form, cost: e.target.value })} />
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={form.cost}
+              onChange={(e) => setForm({ ...form, cost: e.target.value })}
+            />
           </label>
           <label className="wide">
             Observações
-            <input value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Marca da peça, oficina..." />
+            <input
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+              placeholder="Marca da peça, oficina..."
+            />
           </label>
           <button type="submit">Salvar (vida útil volta a 100%)</button>
         </form>

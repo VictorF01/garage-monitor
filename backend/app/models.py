@@ -20,9 +20,7 @@ class Vehicle(Base):
     items: Mapped[list["MaintenanceItem"]] = relationship(
         back_populates="vehicle", cascade="all, delete-orphan", order_by="MaintenanceItem.name"
     )
-    manuals: Mapped[list["Manual"]] = relationship(
-        back_populates="vehicle", cascade="all, delete-orphan"
-    )
+    manuals: Mapped[list["Manual"]] = relationship(back_populates="vehicle", cascade="all, delete-orphan")
 
 
 class MaintenanceItem(Base):

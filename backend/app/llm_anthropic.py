@@ -15,9 +15,7 @@ MODEL = "claude-opus-5-5"
 
 def suggest(pdf_path: Path, vehicle_desc: str) -> list[Suggestion]:
     if not os.getenv("ANTHROPIC_API_KEY"):
-        raise ManualAIError(
-            "ANTHROPIC_API_KEY não configurada. Defina a chave no arquivo .env e reinicie o backend."
-        )
+        raise ManualAIError("ANTHROPIC_API_KEY não configurada. Defina a chave no arquivo .env e reinicie o backend.")
     client = anthropic.Anthropic()
     uploaded = None
     try:
@@ -55,9 +53,7 @@ def suggest(pdf_path: Path, vehicle_desc: str) -> list[Suggestion]:
     except anthropic.RateLimitError as e:
         raise ManualAIError("Limite de requisições atingido. Tente novamente em instantes.") from e
     except anthropic.BadRequestError as e:
-        raise ManualAIError(
-            f"O manual não pôde ser processado (o limite é 600 páginas por PDF): {e.message}"
-        ) from e
+        raise ManualAIError(f"O manual não pôde ser processado (o limite é 600 páginas por PDF): {e.message}") from e
     except anthropic.APIStatusError as e:
         raise ManualAIError(f"Erro na API do Claude ({e.status_code}).") from e
     except anthropic.APIConnectionError as e:

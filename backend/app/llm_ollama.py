@@ -36,8 +36,13 @@ def suggest(pdf_path: Path, vehicle_desc: str) -> list[Suggestion]:
     if not indices:
         raise ManualAIError("Não encontrei páginas com o plano de manutenção neste PDF.")
     chunks = chunk_pages(pages, indices, CHUNK_CHARS)
-    log.info("Manual %s: %d páginas, usando %s em %d blocos", pdf_path.name, len(pages),
-             [i + 1 for i in indices], len(chunks))
+    log.info(
+        "Manual %s: %d páginas, usando %s em %d blocos",
+        pdf_path.name,
+        len(pages),
+        [i + 1 for i in indices],
+        len(chunks),
+    )
 
     client = ollama.Client(host=OLLAMA_HOST, timeout=600)
     schema = SuggestionList.model_json_schema()
@@ -65,9 +70,7 @@ def suggest(pdf_path: Path, vehicle_desc: str) -> list[Suggestion]:
             ) from e
         except ollama.ResponseError as e:
             if e.status_code == 404:
-                raise ManualAIError(
-                    f"Modelo '{OLLAMA_MODEL}' não encontrado. Rode: ollama pull {OLLAMA_MODEL}"
-                ) from e
+                raise ManualAIError(f"Modelo '{OLLAMA_MODEL}' não encontrado. Rode: ollama pull {OLLAMA_MODEL}") from e
             raise ManualAIError(f"Erro do Ollama: {e.error}") from e
 
         try:

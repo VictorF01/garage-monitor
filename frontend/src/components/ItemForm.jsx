@@ -2,7 +2,14 @@ import { useState } from "react";
 import { REGION_LABELS } from "../regions.js";
 
 export default function ItemForm({ onSubmit, onCancel, defaultRegion }) {
-  const [f, setF] = useState({ name: "", kind: "servico", region: defaultRegion ?? "", interval_km: "", interval_months: "", notes: "" });
+  const [f, setF] = useState({
+    name: "",
+    kind: "servico",
+    region: defaultRegion ?? "",
+    interval_km: "",
+    interval_months: "",
+    notes: "",
+  });
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
   const submit = (e) => {

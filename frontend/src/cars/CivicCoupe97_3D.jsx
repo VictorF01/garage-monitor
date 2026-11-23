@@ -151,8 +151,20 @@ function carBox(size, pos, rotZ = 0) {
   return taper(g, "body");
 }
 
-const DOOR_GLASS = [[1.45, 0.89], [1.98, 1.13], [2.12, 1.19], [2.7, 1.2], [2.7, 0.9]];
-const QUARTER_GLASS = [[2.8, 1.2], [3.08, 1.19], [3.5, 0.99], [3.45, 0.95], [2.8, 0.93]];
+const DOOR_GLASS = [
+  [1.45, 0.89],
+  [1.98, 1.13],
+  [2.12, 1.19],
+  [2.7, 1.2],
+  [2.7, 0.9],
+];
+const QUARTER_GLASS = [
+  [2.8, 1.2],
+  [3.08, 1.19],
+  [3.5, 0.99],
+  [3.45, 0.95],
+  [2.8, 0.93],
+];
 
 // ---------- regiões ----------
 
@@ -185,7 +197,15 @@ export function RegionMaterial({ id, paint = false }) {
   const color = regions[id]?.color ?? "#64748b";
   const glow = selected === id ? 0.9 : hover === id ? 0.45 : 0.12;
   return paint ? (
-    <meshPhysicalMaterial color={color} emissive={color} emissiveIntensity={glow} metalness={0.5} roughness={0.25} clearcoat={1} clearcoatRoughness={0.05} />
+    <meshPhysicalMaterial
+      color={color}
+      emissive={color}
+      emissiveIntensity={glow}
+      metalness={0.5}
+      roughness={0.25}
+      clearcoat={1}
+      clearcoatRoughness={0.05}
+    />
   ) : (
     <meshStandardMaterial color={color} emissive={color} emissiveIntensity={glow} metalness={0.4} roughness={0.35} />
   );
@@ -330,10 +350,26 @@ export default function CivicCoupe97_3D({ regions, selected, onSelect, xray = fa
     <Ctx.Provider value={{ regions, selected, onSelect, hover, setHover }}>
       <group position={[-LENGTH / 2, 0, 0]}>
         <mesh geometry={geo.body} castShadow receiveShadow {...shell}>
-          <meshPhysicalMaterial key={xray ? "x" : "s"} color={PAINT} metalness={0.6} roughness={0.22} clearcoat={1} clearcoatRoughness={0.04} {...see} />
+          <meshPhysicalMaterial
+            key={xray ? "x" : "s"}
+            color={PAINT}
+            metalness={0.6}
+            roughness={0.22}
+            clearcoat={1}
+            clearcoatRoughness={0.04}
+            {...see}
+          />
         </mesh>
         <mesh geometry={geo.cabin} castShadow {...shell}>
-          <meshPhysicalMaterial key={xray ? "x" : "s"} color={PAINT} metalness={0.6} roughness={0.22} clearcoat={1} clearcoatRoughness={0.04} {...see} />
+          <meshPhysicalMaterial
+            key={xray ? "x" : "s"}
+            color={PAINT}
+            metalness={0.6}
+            roughness={0.22}
+            clearcoat={1}
+            clearcoatRoughness={0.04}
+            {...see}
+          />
         </mesh>
 
         {/* vidros */}
@@ -356,7 +392,11 @@ export default function CivicCoupe97_3D({ regions, selected, onSelect, xray = fa
         {/* capô = região do motor */}
         <Region id="motor">
           <mesh geometry={geo.hood} castShadow>
-            {xray ? <meshStandardMaterial transparent opacity={0.1} color="#94a3b8" depthWrite={false} /> : <RegionMaterial id="motor" paint />}
+            {xray ? (
+              <meshStandardMaterial transparent opacity={0.1} color="#94a3b8" depthWrite={false} />
+            ) : (
+              <RegionMaterial id="motor" paint />
+            )}
           </mesh>
         </Region>
 

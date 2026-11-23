@@ -44,7 +44,13 @@ function Wheel({ cx, cy, ...props }) {
         {[0, 72, 144, 216, 288].map((a) => {
           const rad = (a * Math.PI) / 180;
           return (
-            <line key={a} x1={cx + 8 * Math.cos(rad)} y1={cy + 8 * Math.sin(rad)} x2={cx + 29 * Math.cos(rad)} y2={cy + 29 * Math.sin(rad)} />
+            <line
+              key={a}
+              x1={cx + 8 * Math.cos(rad)}
+              y1={cy + 8 * Math.sin(rad)}
+              x2={cx + 29 * Math.cos(rad)}
+              y2={cy + 29 * Math.sin(rad)}
+            />
           );
         })}
       </g>
@@ -73,7 +79,11 @@ export default function CivicCoupe97(props) {
       />
       <g pointerEvents="none">
         {/* vidros */}
-        <path fill="#bfdbfe" opacity="0.85" d="M 300 128 C 330 112 365 93 393 82 C 405 77 420 76 438 76 L 478 76 L 478 128 Z" />
+        <path
+          fill="#bfdbfe"
+          opacity="0.85"
+          d="M 300 128 C 330 112 365 93 393 82 C 405 77 420 76 438 76 L 478 76 L 478 128 Z"
+        />
         <path fill="#bfdbfe" opacity="0.85" d="M 488 76 L 512 77 C 532 78 548 84 560 92 L 598 116 L 488 124 Z" />
         {/* porta, maçaneta, retrovisor, friso */}
         <path d="M 290 131 L 296 208 M 520 125 L 522 208" stroke="#0f1f4d" strokeWidth="2" fill="none" />

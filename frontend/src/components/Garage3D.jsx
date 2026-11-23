@@ -5,7 +5,14 @@
 import { useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { ContactShadows, Environment, Grid, Lightformer, MeshReflectorMaterial, OrbitControls } from "@react-three/drei";
+import {
+  ContactShadows,
+  Environment,
+  Grid,
+  Lightformer,
+  MeshReflectorMaterial,
+  OrbitControls,
+} from "@react-three/drei";
 import { Bloom, EffectComposer, Vignette } from "@react-three/postprocessing";
 import { LENGTH } from "../cars/CivicCoupe97_3D.jsx";
 import CivicCoupe97_3D, { MODEL_CREDIT, PIN_ANCHORS } from "../cars/CivicCoupe97_GLB.jsx";
@@ -143,16 +150,45 @@ export default function Garage3D({ regions, selected, onSelect, title }) {
         <fog attach="fog" args={["#05060b", 12, 30]} />
 
         <ambientLight intensity={0.15} />
-        <spotLight position={[0, 7, 0]} angle={0.55} penumbra={0.7} intensity={140} color="#e0e7ff" castShadow shadow-mapSize={[1024, 1024]} />
+        <spotLight
+          position={[0, 7, 0]}
+          angle={0.55}
+          penumbra={0.7}
+          intensity={140}
+          color="#e0e7ff"
+          castShadow
+          shadow-mapSize={[1024, 1024]}
+        />
         <pointLight position={[-6, 2.5, -4]} intensity={18} color={NEON_A} />
         <pointLight position={[6, 2.5, -4]} intensity={18} color={NEON_B} />
         <pointLight position={[0, 1.5, 6]} intensity={5} color="#ffffff" />
 
         {/* reflexos na pintura: "softboxes" coloridas, sem download de HDR */}
         <Environment resolution={256} frames={1}>
-          <Lightformer form="rect" intensity={2.5} color="#ffffff" position={[0, 6, 0]} rotation={[Math.PI / 2, 0, 0]} scale={[8, 3, 1]} />
-          <Lightformer form="rect" intensity={2} color={NEON_A} position={[-6, 2, -2]} rotation={[0, Math.PI / 2, 0]} scale={[10, 0.6, 1]} />
-          <Lightformer form="rect" intensity={2} color={NEON_B} position={[6, 2, -2]} rotation={[0, -Math.PI / 2, 0]} scale={[10, 0.6, 1]} />
+          <Lightformer
+            form="rect"
+            intensity={2.5}
+            color="#ffffff"
+            position={[0, 6, 0]}
+            rotation={[Math.PI / 2, 0, 0]}
+            scale={[8, 3, 1]}
+          />
+          <Lightformer
+            form="rect"
+            intensity={2}
+            color={NEON_A}
+            position={[-6, 2, -2]}
+            rotation={[0, Math.PI / 2, 0]}
+            scale={[10, 0.6, 1]}
+          />
+          <Lightformer
+            form="rect"
+            intensity={2}
+            color={NEON_B}
+            position={[6, 2, -2]}
+            rotation={[0, -Math.PI / 2, 0]}
+            scale={[10, 0.6, 1]}
+          />
           <Lightformer form="rect" intensity={1.5} color="#ffffff" position={[0, 1.5, 7]} scale={[10, 2, 1]} />
         </Environment>
 
@@ -208,9 +244,24 @@ export default function Garage3D({ regions, selected, onSelect, title }) {
       </div>
       <div className="garage-credit">
         Modelo 3D: “{MODEL_CREDIT.title}”
-        {MODEL_CREDIT.author && <> por {MODEL_CREDIT.url ? <a href={MODEL_CREDIT.url} target="_blank" rel="noreferrer">{MODEL_CREDIT.author}</a> : MODEL_CREDIT.author}</>}
+        {MODEL_CREDIT.author && (
+          <>
+            {" "}
+            por{" "}
+            {MODEL_CREDIT.url ? (
+              <a href={MODEL_CREDIT.url} target="_blank" rel="noreferrer">
+                {MODEL_CREDIT.author}
+              </a>
+            ) : (
+              MODEL_CREDIT.author
+            )}
+          </>
+        )}
         {" · "}
-        <a href={MODEL_CREDIT.licenseUrl} target="_blank" rel="noreferrer">{MODEL_CREDIT.license}</a> · cores e regiões modificadas
+        <a href={MODEL_CREDIT.licenseUrl} target="_blank" rel="noreferrer">
+          {MODEL_CREDIT.license}
+        </a>{" "}
+        · cores e regiões modificadas
       </div>
       <div className="garage-controls">
         <button className={spinning ? "on" : ""} onClick={() => setSpinning((s) => !s)}>

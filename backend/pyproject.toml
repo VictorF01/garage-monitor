@@ -1,0 +1,15 @@
+# Só configuração de ferramentas de desenvolvimento (as dependências ficam em requirements.txt).
+[tool.ruff]
+line-length = 120
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff.lint.flake8-bugbear]
+# Padrão do FastAPI: Depends(...) como default de parâmetro.
+extend-immutable-calls = ["fastapi.Depends"]

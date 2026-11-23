@@ -16,8 +16,24 @@ _RULES: list[tuple[str, tuple[str, ...]]] = [
     ("pneus", ("pneu", "rodizio", "alinhamento", "balanceamento", "calibragem", "roda")),
     ("suspensao", ("suspens", "amortecedor", "bandeja", "pivo", "bieleta", "terminal de direcao")),
     ("eletrica", ("bateria", "alternador", "lampada", "farol", "fusivel")),
-    ("motor", ("motor", "oleo", "vela", "correia", "valvula", "marcha lenta", "filtro de ar",
-               "combustivel", "injec", "ignic", "bomba d'agua", "tbi", "corpo de borboleta")),
+    (
+        "motor",
+        (
+            "motor",
+            "oleo",
+            "vela",
+            "correia",
+            "valvula",
+            "marcha lenta",
+            "filtro de ar",
+            "combustivel",
+            "injec",
+            "ignic",
+            "bomba d'agua",
+            "tbi",
+            "corpo de borboleta",
+        ),
+    ),
 ]
 
 

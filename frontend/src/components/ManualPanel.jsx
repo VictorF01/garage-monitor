@@ -89,7 +89,9 @@ export default function ManualPanel({ vehicle, existingItems, onAddItems, onErro
       </div>
 
       {manuals.length === 0 && (
-        <p className="muted">Envie o manual (PDF) para receber sugestões de manutenção com base no plano do fabricante.</p>
+        <p className="muted">
+          Envie o manual (PDF) para receber sugestões de manutenção com base no plano do fabricante.
+        </p>
       )}
       <ul className="manuals">
         {manuals.map((m) => (

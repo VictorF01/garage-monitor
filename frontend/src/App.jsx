@@ -22,7 +22,7 @@ export default function App() {
   const loadVehicles = useCallback(async () => {
     const list = await api.listVehicles();
     setVehicles(list);
-    setVehicleId((cur) => (list.some((v) => v.id === cur) ? cur : list[0]?.id ?? null));
+    setVehicleId((cur) => (list.some((v) => v.id === cur) ? cur : (list[0]?.id ?? null)));
   }, []);
 
   const loadItems = useCallback(async () => {
@@ -30,14 +30,16 @@ export default function App() {
     setItems(await api.listItems(vehicleId));
   }, [vehicleId]);
 
-  const run = (fn) => async (...args) => {
-    setError("");
-    try {
-      await fn(...args);
-    } catch (e) {
-      setError(e.message);
-    }
-  };
+  const run =
+    (fn) =>
+    async (...args) => {
+      setError("");
+      try {
+        await fn(...args);
+      } catch (e) {
+        setError(e.message);
+      }
+    };
 
   useEffect(() => {
     run(loadVehicles)();
@@ -121,9 +123,7 @@ export default function App() {
           <section className="card vehicle">
             <div>
               <h2>{vehicle.name}</h2>
-              <p className="muted">
-                {[vehicle.brand, vehicle.model, vehicle.year].filter(Boolean).join(" · ") || "—"}
-              </p>
+              <p className="muted">{[vehicle.brand, vehicle.model, vehicle.year].filter(Boolean).join(" · ") || "—"}</p>
               <p className="summary">
                 <span className="badge vencido">{counts.vencido || 0} vencidos</span>
                 <span className="badge atencao">{counts.atencao || 0} atenção</span>
@@ -143,7 +143,14 @@ export default function App() {
             </form>
           </section>
 
-          {items.length > 0 && <CarDiagram regions={regions} selected={region} onSelect={setRegion} title={[vehicle.brand, vehicle.model, "Coupé", vehicle.year].filter(Boolean).join(" ")} />}
+          {items.length > 0 && (
+            <CarDiagram
+              regions={regions}
+              selected={region}
+              onSelect={setRegion}
+              title={[vehicle.brand, vehicle.model, "Coupé", vehicle.year].filter(Boolean).join(" ")}
+            />
+          )}
 
           <section>
             <div className="section-head">
@@ -161,7 +168,11 @@ export default function App() {
             </div>
             {showItemForm && (
               <div className="card">
-                <ItemForm defaultRegion={region} onSubmit={(d) => addItems([d])} onCancel={() => setShowItemForm(false)} />
+                <ItemForm
+                  defaultRegion={region}
+                  onSubmit={(d) => addItems([d])}
+                  onCancel={() => setShowItemForm(false)}
+                />
               </div>
             )}
             {items.length === 0 && !showItemForm && (

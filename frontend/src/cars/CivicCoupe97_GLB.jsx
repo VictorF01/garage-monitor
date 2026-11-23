@@ -39,7 +39,12 @@ const REGION_RULES = [
   ["pneus", /3DWheel2A_Material1/i], // pneus (borracha das 4 rodas)
 ];
 // Peças que recebem a cor do estado (as demais da região só respondem ao clique).
-const TINTED = { motor: /hooda_body/i, arrefecimento: /hooda_black/i, freios: /caliper/i, pneus: /3DWheel2A_Material1/i };
+const TINTED = {
+  motor: /hooda_body/i,
+  arrefecimento: /hooda_black/i,
+  freios: /caliper/i,
+  pneus: /3DWheel2A_Material1/i,
+};
 
 function regionOf(obj) {
   for (let o = obj; o; o = o.parent) {
