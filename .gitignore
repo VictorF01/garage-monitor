@@ -8,3 +8,8 @@ uploads/
 
 # modelo 3D original baixado (11 MB); o app usa a versão comprimida em frontend/public/models
 assets/source/
+
+# configurações locais do Claude Code (pessoais)
+.claude/settings.local.json
+.ruff_cache/
+.pytest_cache/
