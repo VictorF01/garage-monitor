@@ -30,7 +30,7 @@ function remainingText(item) {
   return parts.join(" · ");
 }
 
-export default function ItemCard({ item, vehicle, onChange, onError }) {
+export default function ItemCard({ item, vehicle, onChange, onError, onUndoable }) {
   const [mode, setMode] = useState(null); // null | "record" | "history"
   const [form, setForm] = useState({ performed_at: today(), km_at_service: vehicle.current_km, cost: "", notes: "" });
   const [history, setHistory] = useState([]);
@@ -76,17 +76,21 @@ export default function ItemCard({ item, vehicle, onChange, onError }) {
     onChange();
   });
 
+  // Sem confirm: a exclusão é reversível pelo "Desfazer" (e itens ficam na lixeira).
   const removeRecord = safe(async (id) => {
-    if (!confirm("Excluir este registro?")) return;
     await api.deleteRecord(id);
     setHistory(await api.listRecords(item.id));
     onChange();
+    onUndoable(`Registro de "${item.name}" excluído`, async () => {
+      await api.restoreRecord(id);
+      if (mode === "history") setHistory(await api.listRecords(item.id));
+    });
   });
 
   const removeItem = safe(async () => {
-    if (!confirm(`Excluir "${item.name}" e seu histórico?`)) return;
     await api.deleteItem(item.id);
     onChange();
+    onUndoable(`"${item.name}" foi para a lixeira`, () => api.restoreItem(item.id));
   });
 
   return (

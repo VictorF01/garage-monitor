@@ -1,7 +1,12 @@
 import { useState } from "react";
 
-export default function VehicleForm({ onSubmit, onCancel }) {
-  const [f, setF] = useState({ name: "", brand: "", model: "", year: "", current_km: "" });
+const EMPTY = { name: "", brand: "", model: "", year: "", current_km: "" };
+
+/** Cadastro e edição de veículo; com `initial`, o formulário já vem preenchido. */
+export default function VehicleForm({ initial, onSubmit, onCancel }) {
+  const [f, setF] = useState(() =>
+    initial ? Object.fromEntries(Object.keys(EMPTY).map((k) => [k, initial[k] ?? ""])) : EMPTY,
+  );
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
   const submit = (e) => {

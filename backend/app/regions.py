@@ -8,10 +8,11 @@ import unicodedata
 
 REGIONS = ["motor", "arrefecimento", "transmissao", "freios", "pneus", "suspensao", "eletrica", "outros"]
 
-# Ordem importa: a primeira regra que casar vence ("fluido de freio" é freio, não motor).
+# Ordem importa: a primeira regra que casar vence ("fluido de freio" é freio, não motor;
+# "disco de embreagem" é transmissão, não freio).
 _RULES: list[tuple[str, tuple[str, ...]]] = [
-    ("freios", ("freio", "pastilha", "disco", "lona", "pinca", "abs")),
     ("transmissao", ("transmiss", "cambio", "embreagem", "atf", "mtf", "cvt", "diferencial")),
+    ("freios", ("freio", "pastilha", "disco", "lona", "pinca", "abs")),
     ("arrefecimento", ("arrefecimento", "radiador", "coolant", "aditivo", "ventoinha")),
     ("pneus", ("pneu", "rodizio", "alinhamento", "balanceamento", "calibragem", "roda")),
     ("suspensao", ("suspens", "amortecedor", "bandeja", "pivo", "bieleta", "terminal de direcao")),

@@ -1,6 +1,7 @@
 import os
 import uuid
 from contextlib import asynccontextmanager
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, UploadFile
@@ -30,6 +31,8 @@ def _migrate():
     """Ajustes de schema sem Alembic (ainda). Idempotente: pode rodar a cada start."""
     with engine.begin() as conn:
         conn.execute(text("ALTER TABLE maintenance_items ADD COLUMN IF NOT EXISTS region VARCHAR(30)"))
+        for table in ("vehicles", "maintenance_items", "service_records"):
+            conn.execute(text(f"ALTER TABLE {table} ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ"))
         rows = conn.execute(text("SELECT id, name FROM maintenance_items WHERE region IS NULL")).all()
         for item_id, name in rows:
             conn.execute(
@@ -56,22 +59,34 @@ def health():
 # ---------------- helpers ----------------
 
 
-def get_vehicle_or_404(db: Session, vehicle_id: int) -> models.Vehicle:
+# Exclusões são reversíveis: marcam deleted_at (lixeira) e podem ser desfeitas pelos endpoints /restore.
+
+
+def now() -> datetime:
+    return datetime.now(UTC)
+
+
+def alive(rows):
+    return [r for r in rows if r.deleted_at is None]
+
+
+def get_vehicle_or_404(db: Session, vehicle_id: int, deleted: bool = False) -> models.Vehicle:
     vehicle = db.get(models.Vehicle, vehicle_id)
-    if not vehicle:
+    if not vehicle or (vehicle.deleted_at is not None) != deleted:
         raise HTTPException(404, "Veículo não encontrado")
     return vehicle
 
 
-def get_item_or_404(db: Session, item_id: int) -> models.MaintenanceItem:
+def get_item_or_404(db: Session, item_id: int, deleted: bool = False) -> models.MaintenanceItem:
     item = db.get(models.MaintenanceItem, item_id)
-    if not item:
+    if not item or (item.deleted_at is not None) != deleted:
         raise HTTPException(404, "Item não encontrado")
     return item
 
 
 def item_out(item: models.MaintenanceItem) -> schemas.ItemOut:
-    last = item.records[0] if item.records else None
+    records = alive(item.records)
+    last = records[0] if records else None
     life = compute_life(
         interval_km=item.interval_km,
         interval_months=item.interval_months,
@@ -89,6 +104,7 @@ def item_out(item: models.MaintenanceItem) -> schemas.ItemOut:
         notes=item.notes,
         source=item.source,
         region=item.region,
+        deleted_at=item.deleted_at,
         last_record=schemas.RecordOut.model_validate(last) if last else None,
         **life,
     )
@@ -99,7 +115,9 @@ def item_out(item: models.MaintenanceItem) -> schemas.ItemOut:
 
 @api.get("/vehicles", response_model=list[schemas.VehicleOut])
 def list_vehicles(db: Session = Depends(get_db)):
-    return db.scalars(select(models.Vehicle).order_by(models.Vehicle.id)).all()
+    return db.scalars(
+        select(models.Vehicle).where(models.Vehicle.deleted_at.is_(None)).order_by(models.Vehicle.id)
+    ).all()
 
 
 @api.post("/vehicles", response_model=schemas.VehicleOut, status_code=201)
@@ -134,12 +152,17 @@ def update_odometer(vehicle_id: int, data: schemas.OdometerIn, db: Session = Dep
 
 @api.delete("/vehicles/{vehicle_id}", status_code=204)
 def delete_vehicle(vehicle_id: int, db: Session = Depends(get_db)):
-    vehicle = get_vehicle_or_404(db, vehicle_id)
-    paths = [Path(m.stored_path) for m in vehicle.manuals]
-    db.delete(vehicle)
+    """Vai para a lixeira junto com itens, histórico e manuais (nada é apagado)."""
+    get_vehicle_or_404(db, vehicle_id).deleted_at = now()
     db.commit()
-    for p in paths:
-        p.unlink(missing_ok=True)
+
+
+@api.post("/vehicles/{vehicle_id}/restore", response_model=schemas.VehicleOut)
+def restore_vehicle(vehicle_id: int, db: Session = Depends(get_db)):
+    vehicle = get_vehicle_or_404(db, vehicle_id, deleted=True)
+    vehicle.deleted_at = None
+    db.commit()
+    return vehicle
 
 
 # ---------------- itens (peças / serviços) ----------------
@@ -148,9 +171,17 @@ def delete_vehicle(vehicle_id: int, db: Session = Depends(get_db)):
 @api.get("/vehicles/{vehicle_id}/items", response_model=list[schemas.ItemOut])
 def list_items(vehicle_id: int, db: Session = Depends(get_db)):
     vehicle = get_vehicle_or_404(db, vehicle_id)
-    items = [item_out(i) for i in vehicle.items]
+    items = [item_out(i) for i in alive(vehicle.items)]
     # Itens com menor vida útil primeiro; sem registro no final.
     return sorted(items, key=lambda i: (i.life_percent is None, i.life_percent or 0))
+
+
+@api.get("/vehicles/{vehicle_id}/items/deleted", response_model=list[schemas.ItemOut])
+def list_deleted_items(vehicle_id: int, db: Session = Depends(get_db)):
+    """Lixeira: itens excluídos, os mais recentes primeiro."""
+    vehicle = get_vehicle_or_404(db, vehicle_id)
+    deleted = [i for i in vehicle.items if i.deleted_at is not None]
+    return [item_out(i) for i in sorted(deleted, key=lambda i: i.deleted_at, reverse=True)]
 
 
 @api.post("/vehicles/{vehicle_id}/items", response_model=list[schemas.ItemOut], status_code=201)
@@ -178,8 +209,16 @@ def update_item(item_id: int, data: schemas.ItemIn, db: Session = Depends(get_db
 
 @api.delete("/items/{item_id}", status_code=204)
 def delete_item(item_id: int, db: Session = Depends(get_db)):
-    db.delete(get_item_or_404(db, item_id))
+    get_item_or_404(db, item_id).deleted_at = now()  # histórico continua guardado
     db.commit()
+
+
+@api.post("/items/{item_id}/restore", response_model=schemas.ItemOut)
+def restore_item(item_id: int, db: Session = Depends(get_db)):
+    item = get_item_or_404(db, item_id, deleted=True)
+    item.deleted_at = None
+    db.commit()
+    return item_out(item)
 
 
 # ---------------- registros de troca / serviço ----------------
@@ -187,7 +226,7 @@ def delete_item(item_id: int, db: Session = Depends(get_db)):
 
 @api.get("/items/{item_id}/records", response_model=list[schemas.RecordOut])
 def list_records(item_id: int, db: Session = Depends(get_db)):
-    return get_item_or_404(db, item_id).records
+    return alive(get_item_or_404(db, item_id).records)
 
 
 @api.post("/items/{item_id}/records", response_model=schemas.ItemOut, status_code=201)
@@ -206,10 +245,20 @@ def create_record(item_id: int, data: schemas.RecordIn, db: Session = Depends(ge
 @api.delete("/records/{record_id}", status_code=204)
 def delete_record(record_id: int, db: Session = Depends(get_db)):
     record = db.get(models.ServiceRecord, record_id)
-    if not record:
+    if not record or record.deleted_at is not None:
         raise HTTPException(404, "Registro não encontrado")
-    db.delete(record)
+    record.deleted_at = now()
     db.commit()
+
+
+@api.post("/records/{record_id}/restore", response_model=schemas.RecordOut)
+def restore_record(record_id: int, db: Session = Depends(get_db)):
+    record = db.get(models.ServiceRecord, record_id)
+    if not record or record.deleted_at is None:
+        raise HTTPException(404, "Registro não encontrado na lixeira")
+    record.deleted_at = None
+    db.commit()
+    return record
 
 
 # ---------------- manuais ----------------

@@ -58,6 +58,7 @@ class ItemOut(ItemIn):
     km_remaining: int | None = None
     days_remaining: int | None = None
     status: str
+    deleted_at: datetime | None = None
 
 
 class ManualOut(BaseModel):

@@ -16,6 +16,7 @@ class Vehicle(Base):
     year: Mapped[int | None] = mapped_column(Integer)
     current_km: Mapped[int] = mapped_column(Integer, default=0)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))  # lixeira (exclusão reversível)
 
     items: Mapped[list["MaintenanceItem"]] = relationship(
         back_populates="vehicle", cascade="all, delete-orphan", order_by="MaintenanceItem.name"
@@ -37,6 +38,7 @@ class MaintenanceItem(Base):
     notes: Mapped[str | None] = mapped_column(Text)
     source: Mapped[str] = mapped_column(String(20), default="usuario")  # "usuario" | "manual"
     region: Mapped[str] = mapped_column(String(30), default="outros")  # ver regions.py
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))  # lixeira (exclusão reversível)
 
     vehicle: Mapped[Vehicle] = relationship(back_populates="items")
     records: Mapped[list["ServiceRecord"]] = relationship(
@@ -58,6 +60,7 @@ class ServiceRecord(Base):
     cost: Mapped[float | None] = mapped_column(Numeric(10, 2))
     notes: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))  # lixeira (exclusão reversível)
 
     item: Mapped[MaintenanceItem] = relationship(back_populates="records")
 
