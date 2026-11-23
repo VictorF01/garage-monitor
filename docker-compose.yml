@@ -1,0 +1,55 @@
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mechhelper}
+      POSTGRES_USER: ${POSTGRES_USER:-mechhelper}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mechhelper}
+    volumes:
+      # Volume persistente: sem ele, todos os dados somem ao recriar o container.
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    ports:
+      - "5432:5432"
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-mechhelper}:${POSTGRES_PASSWORD:-mechhelper}@db:5432/${POSTGRES_DB:-mechhelper}
+      UPLOAD_DIR: /data/uploads
+      MAX_UPLOAD_MB: ${MAX_UPLOAD_MB:-100}
+      # "ollama" (modelo local, padrão) ou "anthropic" (Claude, exige ANTHROPIC_API_KEY)
+      LLM_PROVIDER: ${LLM_PROVIDER:-ollama}
+      OLLAMA_HOST: ${OLLAMA_HOST:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:3b}
+      OLLAMA_NUM_CTX: ${OLLAMA_NUM_CTX:-8192}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+    extra_hosts:
+      # Permite ao container acessar o Ollama rodando no host (fora do Docker).
+      - "host.docker.internal:host-gateway"
+    volumes:
+      # Volume persistente para os PDFs dos manuais enviados.
+      - uploads:/data/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+
+volumes:
+  pgdata:
+  uploads:

@@ -1,0 +1,9 @@
+fastapi==0.121.*
+uvicorn[standard]==0.38.*
+sqlalchemy==2.0.*
+psycopg[binary]==3.2.*
+pydantic==2.*
+python-multipart==0.0.*
+anthropic==2.12.*
+ollama==0.6.*
+pymupdf==2.*
