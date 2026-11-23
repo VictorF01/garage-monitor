@@ -134,7 +134,7 @@ recebe outra cor de pintura e cores de estado em algumas peças. Detalhes em
   mesma licença para o modelo, e não pode usá-lo comercialmente. Para uso comercial, troque o modelo por um com
   licença compatível; o app funciona com o modelo procedural.
 - **Código:** [MIT](LICENSE). A licença MIT vale só para o código; ela **não** se aplica aos modelos 3D em
-  `frontend/public/models/` nem às marcas da Honda.
+  `frontend/public/models/` nem às marcas da Honda (ver [NOTICE.md](NOTICE.md)).
 - **Marcas:** "Honda", "Civic" e o emblema "H" são marcas da Honda Motor Co., Ltd. Projeto pessoal, sem relação com a
   Honda e sem patrocínio ou endosso dela.
 - **Manuais de fabricante:** os PDFs enviados ao app ficam só no volume Docker local e **não** fazem parte do
