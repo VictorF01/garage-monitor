@@ -118,8 +118,25 @@ cd frontend && npm install && npm run dev   # http://localhost:5173
 
 ## Modelo 3D do carro
 
-A garagem usa `frontend/public/models/civic-coupe-97.glb` ("1999 Honda Civic Si", do Sketchfab, licença
-[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)): **somente uso não comercial**, com crédito
-ao autor, ZD 3D Modelling and Design (discord.gg/ZwWHzxk2zu), exibido no canto da garagem (`MODEL_CREDIT` em `src/cars/CivicCoupe97_GLB.jsx`). As cores das
-regiões são modificações nossas. Se o arquivo não carregar, o app usa o modelo procedural (`CivicCoupe97_3D.jsx`).
-O original baixado fica em `assets/source/`.
+A garagem usa `frontend/public/models/civic-coupe-97.glb`: "1999 Honda Civic Si", de **ZD 3D Modelling and Design**
+(Discord: https://discord.gg/ZwWHzxk2zu), publicado no Sketchfab sob
+[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.pt-br). O arquivo foi comprimido e, no app,
+recebe outra cor de pintura e cores de estado em algumas peças. Detalhes em
+[`frontend/public/models/LICENSE.md`](frontend/public/models/LICENSE.md).
+
+- O crédito aparece no canto da garagem (`MODEL_CREDIT` em `src/cars/CivicCoupe97_GLB.jsx`).
+- Se o arquivo não carregar, o app usa o modelo procedural (`CivicCoupe97_3D.jsx`); sem WebGL2, um desenho SVG.
+- O original baixado fica em `assets/source/`, fora do git.
+
+## Licenças e avisos
+
+- **Modelo 3D:** CC BY-NC-SA 4.0, **somente uso não comercial**. Quem fizer fork precisa manter o crédito e a
+  mesma licença para o modelo, e não pode usá-lo comercialmente. Para uso comercial, troque o modelo por um com
+  licença compatível; o app funciona com o modelo procedural.
+- **Código:** a licença do código (se houver um arquivo `LICENSE` na raiz) **não** se aplica aos modelos 3D.
+- **Marcas:** "Honda", "Civic" e o emblema "H" são marcas da Honda Motor Co., Ltd. Projeto pessoal, sem relação com a
+  Honda e sem patrocínio ou endosso dela.
+- **Manuais de fabricante:** os PDFs enviados ao app ficam só no volume Docker local e **não** fazem parte do
+  repositório. Manuais de serviço têm direitos autorais; não os coloque no git.
+- **Senhas:** os valores padrão (`mechhelper`, `claude_ro`) são para desenvolvimento local. Não exponha o banco nem a
+  API na internet sem trocá-los e sem adicionar autenticação.

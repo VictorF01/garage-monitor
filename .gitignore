@@ -13,3 +13,6 @@ assets/source/
 .claude/settings.local.json
 .ruff_cache/
 .pytest_cache/
+
+# manuais de fabricante têm direitos autorais: nunca versionar PDFs
+*.pdf
